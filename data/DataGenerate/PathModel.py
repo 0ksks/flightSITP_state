@@ -24,7 +24,7 @@ def get_route_cost(planeNum: int, routeNum: int, costRange=(10, 50)):
 def get_cancel_cost(routeCost: np.ndarray, costMatter=True, flightCode=None):
     if not flightCode:
         routeNum = routeCost.shape[1]
-        flightNum = np.random.randint(int(0.2 * routeNum), routeNum)
+        flightNum = np.random.randint(max(int(0.2 * routeNum),1), routeNum)
         flightCode = np.random.choice(range(flightNum), size=routeNum, replace=True)
     else:
         flightNum = max(flightCode) + 1

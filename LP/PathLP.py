@@ -1,5 +1,8 @@
 import numpy as np
+import pulp
+import re
 from scipy.sparse import coo_matrix
+
 
 def onehot2num(arr: np.ndarray) -> np.ndarray:
     return np.where(arr == 1)[1]
@@ -8,8 +11,6 @@ def onehot2num(arr: np.ndarray) -> np.ndarray:
 def solve(data: np.ndarray):
     routeCost = data[:-2, :]
     shape = routeCost.shape
-    import pulp
-    import re
 
     pathLP = pulp.LpProblem("PathModel", sense=pulp.LpMinimize)
 
@@ -69,9 +70,9 @@ def solve(data: np.ndarray):
     coo = coo_matrix(data[:-2])
 
     return {
+        "shape": list(shape),
         "input": (coo.data.tolist(), (coo.row.tolist(), coo.col.tolist())),
         "pos": data[-1].astype(int).tolist(),
-        "shape": list(shape),
         "output": result.tolist(),
         "cost": pulp.value(pathLP.objective),
     }
@@ -79,11 +80,22 @@ def solve(data: np.ndarray):
 
 if __name__ == "__main__":
     import sys
+    import pickle
 
     sys.path.append("/Users/admin/Desktop/LEARN/大三下/FLIGHT")
     from data.DataGenerate.PathModel import get_data
 
-    data = get_data(planeNum=6, routeNum=4)
-    solution = solve(data)
-    print(solution)
-    print(coo_matrix(solution["input"], solution["shape"]).todense())
+    planeRange = (6, 15)
+    routeRange = (4, 18)
+    dataCnt = 1e2
+    data = []
+    for _ in range(int(dataCnt)):
+        plane = np.random.choice(np.arange(*planeRange), 1).astype(int)[0]
+        route = np.random.choice(np.arange(*routeRange), 1).astype(int)[0]
+        data.append(solve(get_data(planeNum=plane, routeNum=route)))
+    with open("data/NNSETs/data.pickle", "wb") as f:
+        pickle.dump(data,f)
+    with open("data/NNSETs/data.pickle","rb") as f:
+        data = pickle.load(f)
+    print(data)
+    # print(coo_matrix(solution["input"], solution["shape"]).todense())
