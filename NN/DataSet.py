@@ -1,29 +1,34 @@
 from torch.utils.data import Dataset
-
+from numpy import array
 from InfoPrinter import heading
 from DataLoader import split_dataloader as _split
 from DataLoader import mini_dataloader as _mini
 from typing import Union
+from scipy.sparse import coo_matrix
 import pickle
 
 
 class __DatasetName(Dataset):
     def __init__(self, params: dict = None) -> None:
         with open(params["filepath"], "rb") as f:
-            data = pickle.load(f)
+            data: list[dict] = pickle.load(f)
         self.data = data
 
     def __len__(self) -> int:
         return len(self.data)
 
     def __getitem__(self, index):
-        return self.data.__getitem__(index)
+        items: list[dict] = self.data.__getitem__(index)
+        for idx, item in enumerate(items):
+            items[idx]["input"] = coo_matrix(item["input"], item["shape"]).todense()
+            items[idx]["input"] = array(item["input"])
+        return items
 
     def test(self) -> None:
         heading("data size")
         print(len(self))
         heading("samples")
-        for idx, sample in enumerate(self.data[0:3]):
+        for idx, sample in enumerate(self[0:3]):
             print(f"sample {idx}:\n{sample}")
 
     @property

@@ -4,10 +4,12 @@ import torch
 import torch.nn.functional as F
 import pytorch_lightning as pl
 
+def pos_encoder(pos):
+    ...
 
-class ModelName(pl.LightningModule):
+class FlightTransformer(pl.LightningModule):
     def __init__(self, optimParams=None, optim_=optim.Adam) -> None:
-        super(ModelName, self).__init__()
+        super(FlightTransformer, self).__init__()
         self.optim = optim_
         self.optimParams = optimParams
 
@@ -28,7 +30,7 @@ class ModelName(pl.LightningModule):
 
 if __name__ == "__main__":
     inputTensor = torch.randn((2, 3))
-    model = ModelName()
+    model = FlightTransformer()
     outputTensor = model(inputTensor)
     print(f"{inputTensor = }")
     print(f"{outputTensor = }")

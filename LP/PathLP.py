@@ -64,7 +64,7 @@ def solve(data: np.ndarray):
             pos = [int(num) for num in re.findall(r"\d+", v.name)]
             result[pos[0]][pos[1]] = 1
     new_column = np.where(result.sum(axis=1) == 0, 1, 0)
-    result = np.column_stack((result, new_column))
+    result = np.column_stack((new_column, result))
     result = onehot2num(result)
     data[[-1, -2]] = data[[-2, -1]]
     coo = coo_matrix(data[:-2])
@@ -73,6 +73,7 @@ def solve(data: np.ndarray):
         "shape": list(shape),
         "input": (coo.data.tolist(), (coo.row.tolist(), coo.col.tolist())),
         "pos": data[-1].astype(int).tolist(),
+        "cancel": data[-2].tolist(),
         "output": result.tolist(),
         "cost": pulp.value(pathLP.objective),
     }
@@ -94,8 +95,6 @@ if __name__ == "__main__":
         route = np.random.choice(np.arange(*routeRange), 1).astype(int)[0]
         data.append(solve(get_data(planeNum=plane, routeNum=route)))
     with open("data/NNSETs/data.pickle", "wb") as f:
-        pickle.dump(data,f)
-    with open("data/NNSETs/data.pickle","rb") as f:
+        pickle.dump(data, f)
+    with open("data/NNSETs/data.pickle", "rb") as f:
         data = pickle.load(f)
-    print(data)
-    # print(coo_matrix(solution["input"], solution["shape"]).todense())
