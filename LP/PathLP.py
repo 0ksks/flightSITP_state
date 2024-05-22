@@ -86,8 +86,8 @@ if __name__ == "__main__":
     sys.path.append("/Users/admin/Desktop/LEARN/大三下/FLIGHT")
     from data.DataGenerate.PathModel import get_data
 
-    planeRange = (6, 15)
-    routeRange = (4, 18)
+    planeRange = (4, 8)
+    routeRange = (2, 10)
     dataCnt = 1e2
     data = []
     for _ in range(int(dataCnt)):
