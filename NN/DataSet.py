@@ -2,11 +2,9 @@ import pickle
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
-from pprint import pp
 from typing import Union
 from scipy.sparse import coo_matrix
-from numpy import array, where, ndarray
-from InfoPrinter import heading
+from numpy import array
 from DataLoader import split_dataloader as _split
 from DataLoader import mini_dataloader as _mini
 
@@ -93,15 +91,19 @@ class __DatasetName(Dataset):
         randomSeed=2003,
         mini=False,
         subSize=100,
-        subBatchSize=10,
+        subBatchSize: Union[int, list[int]] = 10,
         subShuffle=True,
     ):
         dataloaders = _split(self, ratio, batchSize, shuffle, randomSeed)
         if mini:
+            if isinstance(subBatchSize, int):
+                subBatchSize = [
+                    subBatchSize,
+                ] * len(ratio)
             for i, dataloader in enumerate(dataloaders):
                 if i == 0:
                     dataloaders[i] = _mini(
-                        dataloader, subSize, subBatchSize, subShuffle
+                        dataloader, subSize, subBatchSize[i], subShuffle
                     )
                 else:
                     dataloaders[i] = _mini(dataloader, subSize, subBatchSize, False)
@@ -118,7 +120,7 @@ if __name__ == "__main__":
 
     loaders = datasetName.split_loader()
     loader = loaders[0]
-    for idx, item in enumerate(loader):
-        print(idx, item)
-        if idx == 10:
-            break
+    # for idx, item in enumerate(loader):
+    #     print(idx, item)
+    #     if idx == 10:
+    #         break

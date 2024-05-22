@@ -1,6 +1,7 @@
 from torch.utils.data import random_split, DataLoader, Subset, Dataset
 import torch
 from typing import Union
+from InfoPrinter import heading
 
 
 def split_dataloader(
@@ -13,10 +14,15 @@ def split_dataloader(
     if isinstance(batchSize, int):
         batchSize = [
             batchSize,
-        ] * 3
+        ] * len(ratio)
     ratio = list(map(lambda x: x / sum(ratio), ratio))
     ratio[-1] = 1 - sum(ratio[:-1])
-    print(f"split by {' : '.join(map(lambda x:f'{100*x:.1f}%',ratio))}")
+    heading("data size")
+    print(len(dataset))
+    heading("ratio")
+    print(f"{' : '.join(map(lambda x:f'{100*x:.1f}%',ratio))}")
+    heading("batch size")
+    print(f"{' : '.join(map(str,batchSize))}")
     generator = torch.Generator().manual_seed(randomSeed)
     datasets = random_split(dataset, ratio, generator)
     dataloaders = []
