@@ -40,6 +40,15 @@ def pad_list(input_: list, tgtShape: int) -> torch.Tensor:
     return F.pad(input_, (0, tgtShape), value=-1)
 
 
+def normal(data: dict) -> dict:
+    data["cancel"] = array(data["cancel"])
+    max_ = max(data["input"].max(), data["cancel"].max(), data["cost"])
+    data["input"] /= max_
+    data["cancel"] /= max_
+    data["cost"] /= max_
+    return data
+
+
 class __DatasetName(Dataset):
     def __init__(self, params: dict = None) -> None:
         with open(params["filepath"], "rb") as f:
@@ -61,6 +70,7 @@ class __DatasetName(Dataset):
 
         def pipeline(item: dict) -> dict:
             item = matrix_transformer(item)
+            item = normal(item)
             item = pad_matrix(item, self.shape)
             item["shape"] = torch.tensor(item["shape"], dtype=int)
             item["pos"] = pad_list(item["pos"], self.shape[1] - item["shape"][1])

@@ -5,20 +5,6 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 
 
-def padding(srcMat: torch.Tensor, tgtShape: tuple[int]) -> torch.Tensor:
-    import warnings
-
-    srcShape = srcMat.shape
-    top = 0
-    bottom = tgtShape[0] - srcShape[0]
-    left = 0
-    right = tgtShape[1] - srcShape[1]
-    if bottom < 0 or right < 0:
-        warnings.warn(
-            f"the target shape {tgtShape} is smaller than the source shape {tuple(srcShape)}"
-        )
-    return F.pad(srcMat, (left, right, top, bottom), mode="constant", value=0)
-
 
 class FlightTransformer(pl.LightningModule):
     def __init__(self, optimParams=None, optim_=optim.Adam) -> None:
