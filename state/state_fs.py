@@ -18,6 +18,20 @@ class FlightInfo:
         depTime = depTime.replace(".000Z", "")
         arrTime = str(self.arrTime).replace("T", " ")
         arrTime = arrTime.replace(".000Z", "")
+        fmtStr = "{} {}\n{} {}\n[{}]".format(
+            self.depPort,
+            depTime,
+            self.arrPort,
+            arrTime,
+            self.series,
+        )
+        return fmtStr
+
+    def flat_str(self) -> str:
+        depTime = str(self.depTime).replace("T", " ")
+        depTime = depTime.replace(".000Z", "")
+        arrTime = str(self.arrTime).replace("T", " ")
+        arrTime = arrTime.replace(".000Z", "")
         fmtStr = "({}, {}, {}, {})[{}]".format(
             self.depPort,
             depTime,
@@ -46,17 +60,17 @@ for _, row in input_data.iterrows():
 
 # 定义航班状态类
 class StateFS(NamedTuple):
-    flights: list  # List of FlightInfo objects
+    flights: list[FlightInfo]  # List of FlightInfo objects
     graph: nx.DiGraph  # Directed graph representing flight connections
     current_flight: FlightInfo = None  # Property to track the currently selected flight
     zero_in_degree_flights: list = []  # List to store flights with zero in-degree
-    chains: list = [[]]
+    chains: list = list[list[FlightInfo]]
     staytime: int = 0
     i: int = 0
 
     # 初始化航班状态和有向图
     @staticmethod
-    def initialize(flights):
+    def initialize(flights: list[FlightInfo]):
         graph = nx.DiGraph()
         for i in range(len(flights)):
             current_flight = flights[i]
@@ -82,7 +96,7 @@ class StateFS(NamedTuple):
         )
 
     # 更新航班状态
-    def update(self, selected_flight, mask):
+    def update(self, selected_flight: FlightInfo, mask):
         # 从图中移除选中航班的出边，表示该航班已经被安排
         current_flight = self.current_flight  # 更新当前选中的航班
         out_edges = list(self.graph.out_edges(current_flight))
@@ -188,6 +202,9 @@ class StateFS(NamedTuple):
 
 # 初始化航班状态和有向图
 flight_schedule = StateFS.initialize(flights)
+# nx.nx_agraph.write_dot(
+#     flight_schedule.graph, "./graph.dot"
+# )  # comment this line if you don't want to draw a picture
 # 选择航班并将更新后的航班状态赋值给新的变量
 updated_flight_schedule = flight_schedule.select_flight(flights[1])
 # 获取前驱航班列表
@@ -223,7 +240,7 @@ if updated_flight_schedule:
     print("Chains:")
     for chain in updated_flight_schedule.chains:
         print("=" * 50)
-        print("{}".format("\n".join(map(str, chain))))
+        print("{}".format("\n".join(map(lambda x:x.flat_str(), chain))))
     print("=" * 50)
     print("staytime:", updated_flight_schedule.staytime)
 else:
