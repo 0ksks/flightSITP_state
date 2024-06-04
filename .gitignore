@@ -4,6 +4,8 @@ test.py
 
 /paper/
 
+/__pycache__/
+
 storageLink.txt
 
 .DS_Store
